@@ -1,0 +1,37 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 1. The User Model
+model User {
+  id        Int      @id @default(autoincrement()) // Unique ID (1, 2, 3...)
+  email     String   @unique                       // Cannot have duplicate emails
+  password  String                                 // We will hash this later
+  name      String
+  createdAt DateTime @default(now())               // Auto-set the time when created
+  
+  // Relation: One User has Many Tasks
+  tasks     Task[]
+}
+
+// 2. The Task Model
+model Task {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?  // The "?" means this is optional
+  status      String   @default("Pending") // Default status is "Pending"
+  dueDate     String?  // Optional due date
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt // Auto-updates when you edit the task
+
+  // Relation: Belongs to one User
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+}

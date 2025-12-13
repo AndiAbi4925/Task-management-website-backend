@@ -47,3 +47,42 @@ exports.login = async (req, res) => {
     // Placeholder for now
     res.json({ message: "Login logic goes here" });
 };
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // 1. Check if user exists
+    const user = await prisma.user.findUnique({
+      where: { email: email }
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+
+    // 2. Check if password is correct
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+
+    // 3. Generate Token
+    const token = jwt.sign(
+      { userId: user.id },
+      'YOUR_SECRET_KEY', // We will move this to .env later
+      { expiresIn: '1h' }
+    );
+
+    // 4. Send Success
+    res.json({
+      message: "Login successful",
+      token: token,
+      user: { name: user.name, email: user.email }
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};

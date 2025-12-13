@@ -6,7 +6,6 @@ const authMiddleware = require('../middleware/authMiddleware'); // <--- Import t
 router.post('/register', authController.register);
 router.post('/login', authController.login);
 
-// NEW ROUTES (Protected)
 router.get('/me', authMiddleware, authController.getMe);
 router.put('/profile', authMiddleware, authController.updateProfile);
 

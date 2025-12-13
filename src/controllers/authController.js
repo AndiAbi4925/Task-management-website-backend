@@ -86,3 +86,50 @@ exports.login = async (req, res) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 };
+
+// 3. Get Current User Profile
+exports.getMe = async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.userId }
+    });
+    
+    // Don't send the password back!
+    const { password, ...userData } = user;
+    res.json(userData);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+// 4. Update Profile
+exports.updateProfile = async (req, res) => {
+  try {
+    const { firstName, lastName, email, title, password } = req.body;
+    const userId = req.user.userId;
+
+    // Combine First + Last name for the database
+    const fullName = `${firstName} ${lastName}`.trim();
+
+    const updateData = {
+      name: fullName,
+      email: email,
+      title: title
+    };
+
+    // Only update password if the user typed a new one
+    if (password && password.trim() !== "") {
+      updateData.password = await bcrypt.hash(password, 10);
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: updateData
+    });
+
+    res.json({ message: "Profile updated successfully", user: updatedUser });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to update profile" });
+  }
+};

@@ -1,12 +1,13 @@
-// src/routes/authRoutes.js
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
+const authMiddleware = require('../middleware/authMiddleware'); // <--- Import this!
 
-// When someone POSTs to /register, run the register function
 router.post('/register', authController.register);
-
-// When someone POSTs to /login, run the login function
 router.post('/login', authController.login);
+
+// NEW ROUTES (Protected)
+router.get('/me', authMiddleware, authController.getMe);
+router.put('/profile', authMiddleware, authController.updateProfile);
 
 module.exports = router;

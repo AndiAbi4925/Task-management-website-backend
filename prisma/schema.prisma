@@ -11,14 +11,16 @@ datasource db {
 
 // 1. The User Model
 model User {
-  id        Int      @id @default(autoincrement()) // Unique ID (1, 2, 3...)
-  email     String   @unique                       // Cannot have duplicate emails
-  password  String                                 // We will hash this later
-  name      String
-  createdAt DateTime @default(now())               // Auto-set the time when created
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
+  password String
+  name     String
   
-  // Relation: One User has Many Tasks
-  tasks     Task[]
+  // ADD THIS NEW LINE:
+  title    String? @default("New User") 
+  
+  createdAt DateTime @default(now())
+  tasks    Task[]
 }
 
 // 2. The Task Model

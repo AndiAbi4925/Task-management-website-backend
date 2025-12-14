@@ -18,10 +18,11 @@ exports.getTasks = async (req, res) => {
 // 2. Create a New Task
 exports.createTask = async (req, res) => {
   try {
-    const { title, description, dueDate } = req.body;
+    console.log("--- DEBUG: STARTING CREATE TASK ---");
+    console.log("1. User ID from Token:", req.user.userId);
+    console.log("2. Data received from Frontend:", req.body);
 
-    // Check if user exists first (Debug step)
-    console.log("Creating task for User ID:", req.user.userId);
+    const { title, description, dueDate, checkInDate, bedType, isSmoking, hasConnecting, hasBreakfast } = req.body;
 
     const newTask = await prisma.task.create({
       data: {
@@ -29,14 +30,19 @@ exports.createTask = async (req, res) => {
         description,
         dueDate,
         checkInDate,
-        bedType, isSmoking, hasConnecting, hasBreakfast,
+        bedType,
+        isSmoking,
+        hasConnecting,
+        hasBreakfast,
         userId: req.user.userId 
       }
     });
 
+    console.log("3. SUCCESS! Task created:", newTask);
     res.status(201).json(newTask);
+
   } catch (error) {
-    console.error("CREATE TASK ERROR:", error); // <--- Add this!
+    console.error("!!! ERROR CREATING TASK !!!", error); // <--- This prints the real error
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
@@ -68,34 +74,47 @@ exports.deleteTask = async (req, res) => {
 exports.updateTask = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, status, dueDate } = req.body;
+    
+    // 1. Get the new data from the website
+    const { 
+        title, description, status, 
+        dueDate, checkInDate, 
+        bedType, isSmoking, hasConnecting, hasBreakfast 
+    } = req.body;
 
-    // 1. Check if the task exists and belongs to the user
+    // 2. Check if the task exists and belongs to the user
     const task = await prisma.task.findUnique({ where: { id: Number(id) } });
 
     if (!task) {
-      return res.status(404).json({ message: "Task not found" });
+        return res.status(404).json({ message: "Task not found" });
     }
-
     if (task.userId !== req.user.userId) {
-      return res.status(403).json({ message: "Not authorized to edit this task" });
+        return res.status(403).json({ message: "Not authorized to edit this task" });
     }
 
-    // 2. Update the task
+    // 3. Update the task in the database
     const updatedTask = await prisma.task.update({
       where: { id: Number(id) },
       data: {
         title,
         description,
         status,
+        // Update the Date Fields
         dueDate,
-        checkInDate
+        checkInDate,
+        // Update the Room Details
+        bedType,
+        isSmoking,
+        hasConnecting,
+        hasBreakfast
       }
     });
 
+    console.log("Success! Task Updated.");
     res.json(updatedTask);
+
   } catch (error) {
-    console.error("UPDATE TASK ERROR:", error);
-    res.status(500).json({ message: "Server Error" });
+    console.error("!!! ERROR UPDATING TASK !!!", error);
+    res.status(500).json({ message: "Server Error", error: error.message });
   }
 };

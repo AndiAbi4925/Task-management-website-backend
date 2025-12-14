@@ -1,43 +1,38 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
+  url      = "file:./dev.db"
 }
 
-// 1. The User Model
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  password String
-  name     String
-  
-  title    String? @default("New User") 
-  
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  title     String?  @default("Concierge Staff")
   createdAt DateTime @default(now())
-  tasks    Task[]
+  tasks     Task[]
 }
 
-// 2. The Task Model
 model Task {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String?  // The "?" means this is optional
-  status      String   @default("Pending") // Default status is "Pending"
-  checkInDate String?
-  dueDate     String?  // Optional due date
-  bedType         String?   @default("King") // King, Queen, Twin
-  isSmoking       Boolean   @default(false)
-  hasConnecting   Boolean   @default(false)
-  hasBreakfast    Boolean   @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt // Auto-updates when you edit the task
+  id            Int      @id @default(autoincrement())
+  title         String
+  description   String?
+  status        String   @default("Pending")
+  checkInDate   String?
+  dueDate       String?
+  
+  // The new fields MUST be here
+  bedType       String?   @default("King")
+  isSmoking     Boolean   @default(false)
+  hasConnecting Boolean   @default(false)
+  hasBreakfast  Boolean   @default(false)
 
-  // Relation: Belongs to one User
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
 }

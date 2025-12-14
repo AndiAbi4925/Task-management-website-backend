@@ -16,7 +16,6 @@ model User {
   password String
   name     String
   
-  // ADD THIS NEW LINE:
   title    String? @default("New User") 
   
   createdAt DateTime @default(now())
@@ -29,7 +28,12 @@ model Task {
   title       String
   description String?  // The "?" means this is optional
   status      String   @default("Pending") // Default status is "Pending"
+  checkInDate String?
   dueDate     String?  // Optional due date
+  bedType         String?   @default("King") // King, Queen, Twin
+  isSmoking       Boolean   @default(false)
+  hasConnecting   Boolean   @default(false)
+  hasBreakfast    Boolean   @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt // Auto-updates when you edit the task
 

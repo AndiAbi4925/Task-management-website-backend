@@ -28,6 +28,8 @@ exports.createTask = async (req, res) => {
         title,
         description,
         dueDate,
+        checkInDate,
+        bedType, isSmoking, hasConnecting, hasBreakfast,
         userId: req.user.userId 
       }
     });
@@ -86,7 +88,8 @@ exports.updateTask = async (req, res) => {
         title,
         description,
         status,
-        dueDate
+        dueDate,
+        checkInDate
       }
     });
 
